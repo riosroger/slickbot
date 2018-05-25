@@ -1,0 +1,33 @@
+{
+  "name": "slickbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/riosroger/slickbot.git"
+  },
+  "author": "Roger Rios",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/client": "4.2.2",
+    "body-parser": "1.18.3",
+    "chalk": "2.4.1",
+    "commander": "2.15.1",
+    "console.table": "0.10.0",
+    "express": "4.16.3",
+    "forever": "0.15.3",
+    "helmet": "3.12.1",
+    "inquirer": "5.2.0",
+    "jsonfile": "4.0.0",
+    "lodash": "4.17.10",
+    "minimist": "1.2.0",
+    "morgan": "1.9.0"
+  },
+  "bin": {
+    "slickbot": "./cli.js"
+  }
+}
