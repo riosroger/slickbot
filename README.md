@@ -1,6 +1,6 @@
 # slickbot
 
-This command line tool creates an http server that listens for Slack Slash Commands (https://api.slack.com/slash-commands and executes the configured shell command.
+This command line tool creates an http server that listens for Slack Slash Commands (https://api.slack.com/slash-commands) and executes the configured shell command.
 
 Slickbot allows you to listen to as many commands as you want. It allows you to specify an "acknowledgement" message when a command is received and a "completed" message for after the command is finished.
 
