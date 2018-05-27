@@ -8,11 +8,11 @@ const COMMANDS_FILE = path.join(__dirname, 'commands.json');
 
 let getSlashCommands = function(){
     return readJsonFile(COMMANDS_FILE)
+    .catch(createCommandsFile)
     .then(commands => {
         if (!_.isObject(commands)) return createCommandsFile();
         return commands;
     })
-    .catch(err => createCommandsFile());
 };
 
 let readJsonFile = function(file){

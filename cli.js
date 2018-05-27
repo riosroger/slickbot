@@ -113,16 +113,16 @@ let addCommand = function(){
             name: 'slash_command',
             message: 'Slash command:',
             validate: validateSlashCommand,
-            default: 'test',
             filter: function(answer){
                 return _.trim(answer);
             }
         },{
             type: 'input',
             name: 'script',
-            message: 'Script:',
-            _validate: validateScript,
-            default: 'whoami && pwd && echo "Here I am!"',
+            message: 'Script/Command to run:',
+            validate: function(answer){
+                return _.trim(answer) != '';
+            },
             filter: function(answer){
                 return _.trim(answer);
             }
@@ -138,7 +138,6 @@ let addCommand = function(){
             type: 'input',
             name: 'ack_msg',
             message: 'Acknowledge Message:',
-            default: 'acked.',
             filter: function(answer){
                 return _.trim(answer);
             },
@@ -150,7 +149,6 @@ let addCommand = function(){
             name: 'ack_msg',
             message: 'Full path to acknowledge message file:',
             suffix: '(/path/to/file.txt)',
-            default: '/Users/roger/workspace/ack_msg.txt',
             filter: function(answer){
                 return _.trim(answer);
             },
@@ -169,7 +167,6 @@ let addCommand = function(){
             type: 'input',
             name: 'completed_msg',
             message: 'Completed Message:',
-            default: 'completed.',
             filter: function(answer){
                 return _.trim(answer);
             },
@@ -181,7 +178,6 @@ let addCommand = function(){
             name: 'completed_msg',
             message: 'Full path to acknowledge message file:',
             suffix: '(/path/to/file.txt)',
-            default: '/Users/roger/workspace/completed_msg.txt',
             filter: function(answer){
                 return _.trim(answer);
             },
@@ -218,14 +214,6 @@ let validateSlashCommand = function(answer){
     })
     .catch(err => {
         helpers.logError(err);
-        return false;
-    })
-};
-
-let validateScript = function(file){
-    return helpers.hasWriteAccess(file)
-    .catch(err => {
-        helpers.logError('\n' + err);
         return false;
     })
 };

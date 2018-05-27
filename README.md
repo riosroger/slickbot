@@ -16,14 +16,12 @@ All configuration can be done on the command line tool.
 `slickbot [options] [command]`
 
   Options:
-
     -V, --version         output the version number
     -p, --port <number>   port number or the environment variable SLICKBOT_PORT.
     -t, --token <string>  slack token or the environment variable SLICKBOT_TOKEN
     -h, --help            output usage information
 
   Commands:
-
     start [options]       starts slickbot.
     stop                  stops slickbot.
     add                   opens a dialog for adding a slash command.
