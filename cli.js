@@ -16,6 +16,7 @@ const helpers = require('./helpers.js');
 let startCommand = function(data){
     let port = parseInt(data.parent.port) || parseInt(process.env.SLICKBOT_PORT);
     let token = _.trim(data.parent.token) || _.trim(process.env.SLICKBOT_TOKEN);
+    let queue = data.parent.queue || _.trim(process.env.SLICKBOT_QUEUE) == 'true';
     if (isNaN(port)) return helpers.logError(`Invalid port number.\nUsage: "${APP_NAME} start --port <port> --token <token>" or set "SLICKBOT_PORT" as a environment variable.`);
     if (!token) return helpers.logError(`Invalid token.\nUsage: "${APP_NAME} start --port <port> --token <token>" or set "SLICKBOT_TOKEN" as a environment variable.`);
 
@@ -23,11 +24,11 @@ let startCommand = function(data){
     
     server.close(function(err){
         if (err) return helpers.logError(err);
-        startDaemon(port, token);
+        startDaemon(port, token, queue);
     });
 };
 
-let startDaemon = function(port, token){
+let startDaemon = function(port, token, queue){
     getChildProcess()
     .then(child => {
         if (child) return console.log(`${APP_NAME} is already listening on port ${child.args[1]}.`);
@@ -36,7 +37,7 @@ let startDaemon = function(port, token){
         let daemon = forever.startDaemon(server, {
             uid: APP_NAME,
             max: 3,
-            args: ['-p', port, '-t', token],
+            args: ['--port', port, '--token', token, '--queue', queue],
             watch: true,
             watchDirectory: __dirname
         })
@@ -240,15 +241,27 @@ let listCommand = function(answer){
         console.table(table);
     })
 }
+
+let tailCommand = function(){
+    return getChildProcess()
+    .then(child => {
+        forever.tail(child.file, {stream: true}, function(err, log){
+            if (err) return console.error(err);
+            console.log(log.line);
+        })
+    })
+};
  
 program.version(APP_VERSION)
 .option('-p, --port <number>', 'port number or the environment variable SLICKBOT_PORT.')
-.option('-t, --token <string>', 'slack token or the environment variable SLICKBOT_TOKEN')
+.option('-t, --token <string>', 'slack token or the environment variable SLICKBOT_TOKEN.')
+.option('-q, --queue', 'if jobs should be put on a queue or set SLICKBOT_QUEUE=true.')
 
 program.command('start')
 .description(`starts ${APP_NAME}.`)
 .option('-p, --port <number>')
 .option('-t, --token <string>')
+.option('-q, --queue')
 .action(startCommand);
 
 program.command('stop')
@@ -270,6 +283,10 @@ program.command('status')
 program.command('list')
 .description(`displays the list of saved slash commands.`)
 .action(listCommand);
+
+program.command('tail')
+.description(`tails the log.`)
+.action(tailCommand);
 
 program.on('command:*', function(){
     console.error('Invalid command: %s\nSee --help for a list of available commands.', program.args.join(' '));

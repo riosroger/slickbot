@@ -15,19 +15,20 @@ All configuration can be done on the command line tool.
 
 `slickbot [options] [command]`
 
-  Options:
+Options:
 
     -V, --version         output the version number
     -p, --port <number>   port number or the environment variable SLICKBOT_PORT.
-    -t, --token <string>  slack token or the environment variable SLICKBOT_TOKEN
+    -t, --token <string>  slack token or the environment variable SLICKBOT_TOKEN.
+    -q, --queue           if jobs should be put on a queue or set SLICKBOT_QUEUE=true.
     -h, --help            output usage information
-
 
   Commands:
 
     start [options]       starts slickbot.
     stop                  stops slickbot.
-    add                   opens a dialog for adding a slash command.
+    add                   adds a slash command.
     remove <string>       removes the specified slash command.
     status                displays if slickbot is running.
-    list                  displays the list of added slash commands.
+    list                  displays the list of saved slash commands.
+    tail                  tails the log.

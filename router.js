@@ -5,9 +5,20 @@ const { exec } = require('child_process');
 const { WebClient, IncomingWebhook } = require('@slack/client');
 const helpers = require('./helpers.js');
 const argv = require('minimist')(process.argv.slice(2));
-const token = argv.t || argv.token;
-const web = new WebClient(token);
-let isBuilding = false;
+const QUEUE = argv.queue;
+const TOKEN = argv.token;
+console.log(QUEUE);
+const web = new WebClient(TOKEN);
+const queue = require('queue');
+const q = queue({
+    concurrency: 1,
+    timeout: 25000,
+    autostart: true
+});
+
+q.on('error', function(err, job){
+    console.error(err);
+});
 
 router.post('/:command', function(req, res){
     let slash_command = req.params.command;
@@ -18,7 +29,9 @@ router.post('/:command', function(req, res){
         if (!command) return res.json({error: 'command not found'});
 
         sendAckMsg(res, req.body, command);
-        execute(req.body, command);
+
+        if (QUEUE) q.push(() => execute(req.body, command));
+        else execute(req.body, command);
     })
     .catch(err => {
         console.error(err);
@@ -49,29 +62,31 @@ let sendAckMsg = function(res, req, command){
 };
 
 let execute = function(req, command){
-    let child = exec(command.script, function(err, stdout, stderr){
-        if (err){
-            console.error(err);
-            postMessage(req.channel_id, err);
+    return new Promise((acc, rej) => {
+        let child = exec(command.script, {maxBuffer: 1024 * 1000}, function(err, stdout, stderr){
+            if (err) return rej(err);
+            acc();
+        });
 
-        } else {
-            sendCompletedMsg(req, command);
-        }
-    });
-
-    child.stdout.on('data', function(data){
-        console.log(data.toString()); 
-    });
+        child.stdout.on('data', function(data){
+            console.log(data.toString()); 
+        });
+    })
+    .then(() => sendCompletedMsg(req, command))
+    .catch(err => {
+        console.error(err);
+        return postMessage(req.channel_id, err);
+    })
 };
 
 let sendCompletedMsg = function(req, command){
-    if (!command.completed_msg) return;
+    if (!command.completed_msg) return Promise.resolve();
     
     if (command.completed_msg_type == 'string'){
-        postMessage(req.channel_id, command.completed_msg);
+        return postMessage(req.channel_id, command.completed_msg);
         
     } else if (command.completed_msg_type == 'file'){
-        helpers.readFile(command.completed_msg)
+        return helpers.readFile(command.completed_msg)
         .catch(err => {
             console.error(err);
             return postMessage(req.channel_id, err);
@@ -79,12 +94,12 @@ let sendCompletedMsg = function(req, command){
         .then(msg => postMessage(req.channel_id, msg))
         
     } else {
-        console.error('Unknown msg type: ' + command.ack_msg_type);
+        return Promise.reject(new Error('Unknown msg type: ' + command.ack_msg_type));
     }
 };
 
 let postMessage = function(channel_id, msg){
-    if (!channel_id) return console.error(`invalid channel_id: ${channel_id}`);
+    if (!channel_id) return Promise.reject(new Error(`invalid channel_id: ${channel_id}`));
     
     return web.chat.postMessage({
         channel: channel_id,

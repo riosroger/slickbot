@@ -1,7 +1,7 @@
 
 const argv = require('minimist')(process.argv.slice(2));
-const port = parseInt(argv.p || argv.port || process.env.SLICKBOT_PORT);
-const token = argv.t || argv.token || process.env.SLICKBOT_TOKEN;
+const port = parseInt(argv.port);
+const token = argv.token;
 if (isNaN(port)) throw new Error('invalid --port');
 if (!token) throw new Error('invalid --token');
 

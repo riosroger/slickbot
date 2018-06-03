@@ -1,1 +1,0 @@
-{"test":{"slash_command":"test","script":"whoami && pwd && echo \"Here I am!\"","ack_msg_type":"string","ack_msg":"acked.","completed_msg_type":"string","completed_msg":"completed."},"test2":{"slash_command":"test2","script":"workspace","ack_msg_type":"string","ack_msg":"acked","completed_msg_type":"string","completed_msg":"done"}}
