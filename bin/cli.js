@@ -12,7 +12,7 @@ const PACKAGE_JSON = require('../package.json');
 const APP_NAME = PACKAGE_JSON.name;
 const APP_VERSION = PACKAGE_JSON.version;
 const SOURCE_DIR = path.join(__dirname, '..', 'src');
-const CONFIG_DIR = (process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME : '/var/local')) + '/.slickbot'
+const CONFIG_DIR = path.join(process.env.APPDATA || process.env.HOME, '.slickbot');
 const COMMANDS_FILE = path.join(CONFIG_DIR, 'commands.json');
 const LOG_FILE = path.join(CONFIG_DIR, 'slickbot.log');
 const helpers = require('../src/helpers.js');
