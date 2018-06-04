@@ -3,15 +3,25 @@ const program = require('commander');
 const forever = require('forever');
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
 const inquirer = require('inquirer');
 const _ = require('lodash');
 const chalk = require('chalk');
 const cTable = require('console.table');
-const PACKAGE_JSON = require('./package.json');
+const PACKAGE_JSON = require('../package.json');
 const APP_NAME = PACKAGE_JSON.name;
 const APP_VERSION = PACKAGE_JSON.version;
-const COMMANDS_FILE = path.join(__dirname, 'commands.json');
-const helpers = require('./helpers.js');
+const SOURCE_DIR = path.join(__dirname, '..', 'src');
+const CONFIG_DIR = (process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME : '/var/local')) + '/.slickbot'
+const COMMANDS_FILE = path.join(CONFIG_DIR, 'commands.json');
+const LOG_FILE = path.join(CONFIG_DIR, 'slickbot.log');
+const helpers = require('../src/helpers.js');
+const readLastLines = require('read-last-lines');
+const Tail = require('tail').Tail;
+
+if (!fs.existsSync(CONFIG_DIR)){
+    fs.mkdirSync(CONFIG_DIR);
+}
 
 let startCommand = function(data){
     let port = parseInt(data.parent.port) || parseInt(process.env.SLICKBOT_PORT);
@@ -32,14 +42,15 @@ let startDaemon = function(port, token, queue){
     getChildProcess()
     .then(child => {
         if (child) return console.log(`${APP_NAME} is already listening on port ${child.args[1]}.`);
-
-        let server = path.join(__dirname, 'server.js');
+        
+        let server = path.join(SOURCE_DIR, 'server.js');
         let daemon = forever.startDaemon(server, {
             uid: APP_NAME,
             max: 3,
             args: ['--port', port, '--token', token, '--queue', queue],
             watch: true,
-            watchDirectory: __dirname
+            watchDirectory: SOURCE_DIR,
+            logFile: LOG_FILE
         })
     
         forever.startServer(daemon);
@@ -243,13 +254,13 @@ let listCommand = function(answer){
 }
 
 let tailCommand = function(){
-    return getChildProcess()
-    .then(child => {
-        forever.tail(child.file, {stream: true}, function(err, log){
-            if (err) return console.error(err);
-            console.log(log.line);
-        })
-    })
+    readLastLines.read(LOG_FILE, 50)
+	.then(lines => {
+        console.log(lines)
+        let tail = new Tail(LOG_FILE);
+        tail.on("line", console.log);
+        tail.on("error", console.error);
+    });
 };
  
 program.version(APP_VERSION)

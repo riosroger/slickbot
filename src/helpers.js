@@ -4,7 +4,8 @@ const fs = require('fs');
 const jsonfile = require('jsonfile');
 const chalk = require('chalk');
 const _ = require('lodash');
-const COMMANDS_FILE = path.join(__dirname, 'commands.json');
+const CONFIG_DIR = (process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME : '/var/local')) + '/.slickbot'
+const COMMANDS_FILE = path.join(CONFIG_DIR, 'commands.json');
 
 let getSlashCommands = function(){
     return readJsonFile(COMMANDS_FILE)

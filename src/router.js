@@ -1,18 +1,15 @@
 'use strict';
 const router = require('express').Router();
-const fs = require('fs');
 const { exec } = require('child_process');
 const { WebClient, IncomingWebhook } = require('@slack/client');
 const helpers = require('./helpers.js');
 const argv = require('minimist')(process.argv.slice(2));
 const QUEUE = argv.queue;
 const TOKEN = argv.token;
-console.log(QUEUE);
 const web = new WebClient(TOKEN);
 const queue = require('queue');
 const q = queue({
     concurrency: 1,
-    timeout: 25000,
     autostart: true
 });
 
@@ -40,24 +37,21 @@ router.post('/:command', function(req, res){
 });
 
 let sendAckMsg = function(res, req, command){
-    if (command.ack_msg){
-        if (command.ack_msg_type == 'string'){
-            res.send(command.ack_msg);
-        
-        } else if (command.ack_msg_type == 'file'){
-            helpers.readFile(command.ack_msg)
-            .then(msg => res.send(msg))
-            .catch(err => {
-                console.error(err);
-                res.json({error: err});
-            });
-        
-        } else {
-            res.json({error: 'Unknown msg type: ' + command.ack_msg_type});
-        }
+    if (!command.ack_msg) return res.end();
 
+    if (command.ack_msg_type == 'string'){
+        res.send(command.ack_msg);
+    
+    } else if (command.ack_msg_type == 'file'){
+        helpers.readFile(command.ack_msg)
+        .then(msg => res.send(msg))
+        .catch(err => {
+            console.error(err);
+            res.json({error: err});
+        });
+    
     } else {
-        res.end();
+        res.json({error: 'Unknown msg type: ' + command.ack_msg_type});
     }
 };
 

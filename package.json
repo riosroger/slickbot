@@ -1,6 +1,6 @@
 {
   "name": "slickbot",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Command line tool for slickbot",
   "main": "cli.js",
   "scripts": {
@@ -26,10 +26,12 @@
     "lodash": "4.17.10",
     "minimist": "1.2.0",
     "morgan": "1.9.0",
-    "queue": "4.4.2"
+    "queue": "4.4.2",
+    "read-last-lines": "1.4.0",
+    "tail": "1.2.3"
   },
   "bin": {
-    "slickbot": "./cli.js"
+    "slickbot": "./bin/cli.js"
   },
   "keywords": [
     "slickbot",
