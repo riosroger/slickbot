@@ -1,6 +1,6 @@
 {
   "name": "slickbot",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Command line tool for slickbot",
   "main": "cli.js",
   "scripts": {
